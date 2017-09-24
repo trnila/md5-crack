@@ -8,9 +8,21 @@
 #define FOUND 1 
 #define NOT_FOUND 0
 
+char table[255];
+const char letters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
 void md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest);
 
-char table[255];
+void initTable() {
+    for(int i = 0; i < sizeof(table) - 1; i++) {
+        table[i] = i + 1;
+    }
+    table['9'] = 'A';
+    table['Z'] = 'a';
+    table['z'] = '0';
+}
+
+
 
 int crack(char* str, int len, char stop, uint8_t* search) {
 	uint8_t hash[16];
@@ -38,7 +50,11 @@ int crack(char* str, int len, char stop, uint8_t* search) {
 	return 0;
 }
 
-const char letters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+void parseHash(const char* str, const uint8_t *search) {
+    for (int i = 0; i < 16; i++) {
+		sscanf(str + 2*i, "%2x", &search[i]);
+	}
+}
 
 int main(int argc, char **argv) {
 	if(argc != 3) {
@@ -46,23 +62,14 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	uint8_t search[16];	
-	for (int i = 0; i < 16; i++) {
-		sscanf(argv[1] + 2*i, "%2x", &search[i]);
-	}
+	uint8_t search[16];
+    parseHash(argv[1], search);
 
-	int len = atoi(argv[2]);
+    int len = atoi(argv[2]);
 
-	printf("Going to crack %d length...\n", len);
-	for(int i = 0; i < sizeof(table) - 1; i++) {
-		table[i] = i + 1;
-	}
-	table['9'] = 'A';
-	table['Z'] = 'a';
-	table['z'] = '0';
+    initTable();
 
-
-	char str[len + 1];
+    char str[len + 1];
 	memset(str, '0', len);
 	str[len] = 0;
 
@@ -73,19 +80,19 @@ int main(int argc, char **argv) {
 	pid_t running[threads];
 	for(int i = 0; i < threads; i++) {
 		running[i] = fork();
-		if(running[i] == 0) {	
+		if(running[i] == 0) {
 			close(pipes[0]);
 			str[0] = letters[sizeof(letters) / threads * i];
 			char last = letters[sizeof(letters) / threads * (i + 1)];
 			if(i == threads - 1) {
-				last = '0';
+				last = letters[0];
 			}
 
 			if(crack(str, len, last, search)) {
 				write(pipes[1], str, len);
-				return 1;
+				exit(FOUND);
 			}
-			return 0;
+			exit(NOT_FOUND);
 		}
 	}
 	close(pipes[1]);
@@ -115,3 +122,4 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
+
