@@ -20,7 +20,7 @@ int crack(char* str, int len, uint8_t* search) {
 
 		md5((uint8_t*) str, len, hash);
 		if(memcmp(search, hash, 16) == 0) {
-			printf("Found: %s\n", str);
+//			printf("Found: %s\n", str);
 			return 1;
 		}
 		int pos = len - 1;
@@ -70,30 +70,44 @@ int main(int argc, char **argv) {
 	memset(str, '0', len);
 	str[len] = 0;
 
+	int pipes[2];
+	pipe(pipes);
+
 	int threads = 4;
 	pid_t running[threads];
 	for(int i = 0; i < threads; i++) {
 		running[i] = fork();
 		if(running[i] == 0) {	
+			close(pipes[0]);
 			str[0] = letters[sizeof(letters) / threads * i];
 			if(crack(str, len, search)) {
+				write(pipes[1], str, len);
 				return 1;
 			}
 			return 0;
 		}
 	}
+	close(pipes[1]);
 
 	int status;
 	pid_t pid;
 	while((pid = wait(&status)) > 0) {
 		if(WEXITSTATUS(status) == FOUND) {
-			printf("Hash found\n");
+			printf("Password found:\n");
 			for(int i = 0; i < threads; i++) {
 				kill(running[i], SIGKILL);
 			}
+
+			char buf[32];
+			int s;
+			while(s = read(pipes[0], buf, sizeof(buf))) {
+				buf[s] = 0;
+				printf("%s", buf);
+			}
+			printf("\n");
 		}
 
-		printf("%d end value: %d\n", pid, WEXITSTATUS(status));
+//		printf("%d end value: %d\n", pid, WEXITSTATUS(status));
 
 	}
 
