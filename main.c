@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
     parseHash(argv[1], search);
 
     int len = atoi(argv[2]);
+	int threads = atoi(getenv("NUM_CORES") ? getenv("NUM_CORES") : "4");
 
     initTable();
 
@@ -76,7 +77,6 @@ int main(int argc, char **argv) {
 	int pipes[2];
 	pipe(pipes);
 
-	int threads = 4;
 	pid_t running[threads];
 	for(int i = 0; i < threads; i++) {
 		running[i] = fork();
