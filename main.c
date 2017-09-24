@@ -27,14 +27,17 @@ void initTable() {
 int crack(char* str, int len, char stop, uint8_t* search) {
 	uint8_t hash[16];
 	//printf("%c %c %d\n", str[0], stop, getpid());
+
+	int single = str[0] == stop;
+
 	do {
 //		printf("%s\n", str);
 
 		md5((uint8_t*) str, len, hash);
 		if(memcmp(search, hash, 16) == 0) {
-//			printf("Found: %s\n", str);
 			return 1;
 		}
+
 		int pos = len - 1;
 		do {
 			str[pos] = table[str[pos]];
@@ -43,9 +46,13 @@ int crack(char* str, int len, char stop, uint8_t* search) {
 			} else {
 				break;
 			}
+
+			if(pos < 0) {
+				return 0;
+			}
 		} while(pos >= 0);
 
-	} while(str[0] != stop);
+	} while(single || str[0] != stop);
 
 	return 0;
 }
@@ -115,8 +122,7 @@ int main(int argc, char **argv) {
 			printf("\n");
 		}
 
-//		printf("%d end value: %d\n", pid, WEXITSTATUS(status));
-
+		//printf("%d end value: %d\n", pid, WEXITSTATUS(status));
 	}
 
 
