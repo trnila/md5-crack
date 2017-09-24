@@ -14,7 +14,7 @@ char table[255];
 
 int crack(char* str, int len, char stop, uint8_t* search) {
 	uint8_t hash[16];
-//	printf("%c %c %d\n", str[0], stop, getpid());
+	//printf("%c %c %d\n", str[0], stop, getpid());
 	do {
 //		printf("%s\n", str);
 
@@ -76,7 +76,12 @@ int main(int argc, char **argv) {
 		if(running[i] == 0) {	
 			close(pipes[0]);
 			str[0] = letters[sizeof(letters) / threads * i];
-			if(crack(str, len, letters[sizeof(letters) / threads * (i+1)], search)) {
+			char last = letters[sizeof(letters) / threads * (i + 1)];
+			if(i == threads - 1) {
+				last = '0';
+			}
+
+			if(crack(str, len, last, search)) {
 				write(pipes[1], str, len);
 				return 1;
 			}
