@@ -12,9 +12,9 @@ void md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest);
 
 char table[255];
 
-int crack(char* str, int len, uint8_t* search) {
-	int done = 0;
+int crack(char* str, int len, char stop, uint8_t* search) {
 	uint8_t hash[16];
+//	printf("%c %c %d\n", str[0], stop, getpid());
 	do {
 //		printf("%s\n", str);
 
@@ -31,13 +31,9 @@ int crack(char* str, int len, uint8_t* search) {
 			} else {
 				break;
 			}
-
-			if(pos < 0) {
-				done = 1;
-			}
 		} while(pos >= 0);
 
-	} while(!done);
+	} while(str[0] != stop);
 
 	return 0;
 }
@@ -80,7 +76,7 @@ int main(int argc, char **argv) {
 		if(running[i] == 0) {	
 			close(pipes[0]);
 			str[0] = letters[sizeof(letters) / threads * i];
-			if(crack(str, len, search)) {
+			if(crack(str, len, letters[sizeof(letters) / threads * (i+1)], search)) {
 				write(pipes[1], str, len);
 				return 1;
 			}
