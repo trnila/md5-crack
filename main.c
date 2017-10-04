@@ -64,7 +64,7 @@ void parseHash(const char* str, const uint8_t *search) {
 }
 
 int main(int argc, char **argv) {
-	if(argc != 3) {
+	if(argc < 3) {
 		printf("Usage: %s hash passsize\n", argv[0]);
 		exit(1);
 	}
@@ -74,6 +74,9 @@ int main(int argc, char **argv) {
 
     int len = atoi(argv[2]);
 	int threads = atoi(getenv("NUM_CORES") ? getenv("NUM_CORES") : "4");
+	if(argc == 4) {
+		threads = atoi(argv[3]);
+	}
 
     initTable();
 
