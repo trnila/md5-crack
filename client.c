@@ -41,6 +41,7 @@ int sendHash(char *hostname, int port, char *hash, int size, char from, char to)
 		exit(1);
 	}
 
+  printf("sending job to %s\n", hostname);
 	char msg[1024];
 	snprintf(msg, sizeof(msg), "%s %d %c %c", hash, size, from, to);
 	write(sockfd, msg, strlen(msg));
@@ -50,7 +51,11 @@ int sendHash(char *hostname, int port, char *hash, int size, char from, char to)
 
 
 int main(int argc, char **argv) {
-	char buf[BUFSIZE];
+	const char* servers[] = {
+    "localhost",
+    "158.196.22.155"
+  };
+  const int numServers = sizeof(servers) / sizeof(servers[0]);
 
 	if(argc < 3) {
 		printf("Usage: %s hash passsize\n", argv[0]);
@@ -66,7 +71,8 @@ int main(int argc, char **argv) {
       char from = letters[sizeof(letters) / threads * i];
       char to = letters[sizeof(letters) / threads * (i + 1)];
 
-      fds[i] = sendHash("127.0.0.1", 1234, hash, len, from, to);
+      fds[i] = sendHash(servers[i % numServers], 1234, hash, len, from, to);
+
   }
 
   fd_set set;

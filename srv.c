@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
 
 	listen(s, 10);
 
+	initTable();
 
 	for(;;) {
 		struct sockaddr_in clientAddr;
@@ -65,8 +66,6 @@ int main(int argc, char **argv) {
 
 			uint8_t search[16];
 			parseHash(hash, search);
-
-			initTable();
 
 			char str[len + 1];
 			memset(str, '0', len);
