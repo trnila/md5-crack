@@ -41,7 +41,7 @@ int sendHash(char *hostname, int port, char *hash, int size, char from, char to)
 		exit(1);
 	}
 
-  printf("sending job to %s\n", hostname);
+	printf("sending job to %s\n", hostname);
 	char msg[1024];
 	snprintf(msg, sizeof(msg), "%s %d %c %c", hash, size, from, to);
 	write(sockfd, msg, strlen(msg));
@@ -52,10 +52,12 @@ int sendHash(char *hostname, int port, char *hash, int size, char from, char to)
 
 int main(int argc, char **argv) {
 	const char* servers[] = {
-    "localhost",
-    "158.196.22.155"
-  };
-  const int numServers = sizeof(servers) / sizeof(servers[0]);
+		"localhost",
+		"158.196.22.154",
+		"158.196.22.155",
+		"158.196.22.156"
+	};
+	const int numServers = sizeof(servers) / sizeof(servers[0]);
 
 	if(argc < 3) {
 		printf("Usage: %s hash passsize\n", argv[0]);
@@ -65,41 +67,41 @@ int main(int argc, char **argv) {
 	char *hash = argv[1];
 	int len = atoi(argv[2]);
 
-  int threads = 4;
-  int fds[threads];
-  for(int i = 0; i < threads; i++) {
-      char from = letters[sizeof(letters) / threads * i];
-      char to = letters[sizeof(letters) / threads * (i + 1)];
+	int threads = 16;
+	int fds[threads];
+	for(int i = 0; i < threads; i++) {
+		char from = letters[sizeof(letters) / threads * i];
+		char to = letters[sizeof(letters) / threads * (i + 1)];
 
-      fds[i] = sendHash(servers[i % numServers], 1234, hash, len, from, to);
+		fds[i] = sendHash(servers[i % numServers], 1234, hash, len, from, to);
 
-  }
+	}
 
-  fd_set set;
-  FD_ZERO(&set);
-  for(int i = 0; i < threads; i++) {
-    FD_SET(fds[i], &set);
-  }
+	fd_set set;
+	FD_ZERO(&set);
+	for(int i = 0; i < threads; i++) {
+		FD_SET(fds[i], &set);
+	}
 
-  for(;;) {
-    int ret = select(fds[threads - 1] + 1, &set, NULL, NULL, NULL);
-    if(ret == -1) {
-      perror("select");
-      exit(1);
-    }
+	for(;;) {
+		int ret = select(fds[threads - 1] + 1, &set, NULL, NULL, NULL);
+		if(ret == -1) {
+			perror("select");
+			exit(1);
+		}
 
-    if(ret) {
-      for(int i = 0; i < threads; i++) {
-        if(FD_ISSET(fds[i], &set)) {
-          char buffer[128];
-          int size = read(fds[i], buffer, sizeof(buffer));
-          buffer[size] = 0;
-          printf("Found pass: %s\n", buffer);
-          exit(1);
-        }
-      }
-    }
-  }
+		if(ret) {
+			for(int i = 0; i < threads; i++) {
+				if(FD_ISSET(fds[i], &set)) {
+					char buffer[128];
+					int size = read(fds[i], buffer, sizeof(buffer));
+					buffer[size] = 0;
+					printf("Found pass: %s\n", buffer);
+					exit(1);
+				}
+			}
+		}
+	}
 
 	return 0;
 }

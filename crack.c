@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define FOUND 1 
+#define FOUND 1
 #define NOT_FOUND 0
 
 char table[255];

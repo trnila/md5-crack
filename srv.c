@@ -41,6 +41,13 @@ int main(int argc, char **argv) {
 
 	initTable();
 
+	// prevent zombies
+	struct sigaction sigchld_action = {
+		.sa_handler = SIG_DFL,
+		.sa_flags = SA_NOCLDWAIT
+	};
+	sigaction(SIGCHLD, &sigchld_action, NULL);
+
 	for(;;) {
 		struct sockaddr_in clientAddr;
 		char buf[1024];
@@ -63,6 +70,7 @@ int main(int argc, char **argv) {
 			sscanf(buf, "%s %d %c %c", hash, &len, &from, &to);
 
 			printf("going %s %d %c %c\n", hash, len, from, to);
+			fflush(stdout);
 
 			uint8_t search[16];
 			parseHash(hash, search);
