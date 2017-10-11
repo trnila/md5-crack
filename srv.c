@@ -71,11 +71,20 @@ int main(int argc, char **argv) {
 			memset(str, '0', len);
 			str[len] = 0;
 
-			str[0] = from;
-			if(crack(str, len, to, search)) {
-				printf("found\n");
-				write(client, str, strlen(str));
+			int pid;
+			if((pid = fork()) == 0) {
+				str[0] = from;
+				if(crack(str, len, to, search)) {
+					printf("found\n");
+					write(client, str, strlen(str));
+				}
+				close(client);
+				exit(0);
 			}
+
+			char c;
+			while(read(client, &c, 1) > 0);
+			kill(pid, SIGTERM);
 
 			close(client);
 			printf("end\n");
