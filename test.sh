@@ -7,4 +7,4 @@ if [ -z "$pass" ]; then
 	exit
 fi
 
-make && time ./crack $(echo -n "$pass" | md5sum | cut -f 1 -d ' ') ${#pass} $cores
+make && ./crack $(echo -n "$pass" | md5sum | cut -f 1 -d ' ') ${#pass} $cores

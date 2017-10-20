@@ -8,23 +8,21 @@
 #define FOUND 1
 #define NOT_FOUND 0
 
-char table[255];
-
 void md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest);
 
-void initTable() {
-    for(int i = 0; i < sizeof(table) - 1; i++) {
-        table[i] = i + 1;
+void initTable(char* table) {
+    for(int i = 0; i < 254; i++) {
+	    table[i] = i + 1;
     }
     table['9'] = 'A';
     table['Z'] = 'a';
     table['z'] = '0';
 }
 
-
-
 int crack(char* str, int len, char stop, uint8_t* search) {
 	uint8_t hash[16];
+	char table[255];
+	initTable(table);
 	//printf("%c %c %d\n", str[0], stop, getpid());
 
 	int single = str[0] == stop;

@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+
+#include <cuda.h>
+#include <cuda_runtime.h>
  
 // Constants are the integer part of the sines of integers (in radians) * 2^32.
-const uint32_t k[64] = {
+__device__ const uint32_t k[64] = {
 0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee ,
 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501 ,
 0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be ,
@@ -23,7 +26,7 @@ const uint32_t k[64] = {
 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391 };
  
 // r specifies the per-round shift amounts
-const uint32_t r[] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+__device__ const uint32_t r[] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
                       5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
                       4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
                       6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
@@ -31,7 +34,7 @@ const uint32_t r[] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22
 // leftrotate function definition
 #define LEFTROTATE(x, c) (((x) << (c)) | ((x) >> (32 - (c))))
  
-void to_bytes(uint32_t val, uint8_t *bytes)
+__device__ void to_bytes(uint32_t val, uint8_t *bytes)
 {
     bytes[0] = (uint8_t) val;
     bytes[1] = (uint8_t) (val >> 8);
@@ -39,7 +42,7 @@ void to_bytes(uint32_t val, uint8_t *bytes)
     bytes[3] = (uint8_t) (val >> 24);
 }
  
-uint32_t to_int32(const uint8_t *bytes)
+__device__ uint32_t to_int32(const uint8_t *bytes)
 {
     return (uint32_t) bytes[0]
         | ((uint32_t) bytes[1] << 8)
@@ -47,7 +50,7 @@ uint32_t to_int32(const uint8_t *bytes)
         | ((uint32_t) bytes[3] << 24);
 }
  
-void md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest) {
+__device__ void md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest) {
  
     // These vars will contain the hash
     uint32_t h0, h1, h2, h3;
