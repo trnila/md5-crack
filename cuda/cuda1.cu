@@ -24,7 +24,7 @@ void initTable(char* table) {
     table['z'] = '0';
 }
 
-__global__ void thread_hierarchy(int len, char *table, uint32_t ha, uint32_t hb, uint32_t hc, uint32_t hd) {
+__global__ void thread_hierarchy(int len, uint32_t ha, uint32_t hb, uint32_t hc, uint32_t hd) {
 	LETTERS
 	uint32_t search[4];
 	search[0] = ha;
@@ -62,18 +62,21 @@ __global__ void thread_hierarchy(int len, char *table, uint32_t ha, uint32_t hb,
 		int i = len - 1;
 		for(;;) {
 			// increment last char
-			start[i] = table[start[i]];
+			start[i]++;
+			if(start[i] == ':') {
+				start[i] = 'A';
+			} else if(start[i] == '[') {
+				start[i] = 'a';
+			} else if(start[i] == '{') {
+				start[i] = 0;
+				i--;
 
-			// character not overflowed to start, break and test new combination
-			if(start[i] != letters[0]) {
-				break;
+				if(i < 3) {
+					return;
+				}
+				continue;
 			}
-
-			i--;
-
-			if(i < 3) {
-				return;
-			}
+			break;
 		}
 	}
 }
@@ -88,17 +91,11 @@ void cuda_crack(int wordLength, uint8_t *hash) {
 	uint32_t search[4];
 	md5_to_ints(hash, &search[0], &search[1], &search[2], &search[3]);
 
-	char table[255];
-	char* gpuTable;
-	initTable(table);
-	CHECK(cudaMalloc(&gpuTable, sizeof(table)));
-	CHECK(cudaMemcpy(gpuTable, table, sizeof(table), cudaMemcpyHostToDevice));
-
 	int len = sizeof(letters);
 	int threadsSize = 5;
 	int blockSize = (len + threadsSize ) / threadsSize;
 	printf("blocks(%d, %d, %d) threadsInBlock(%d, %d, %d)\n", blockSize, blockSize, blockSize, threadsSize, threadsSize, threadsSize);
-	thread_hierarchy<<< dim3(blockSize, blockSize, blockSize), dim3(threadsSize, threadsSize, threadsSize)>>>(wordLength, gpuTable, search[0], search[1], search[2], search[3]);
+	thread_hierarchy<<< dim3(blockSize, blockSize, blockSize), dim3(threadsSize, threadsSize, threadsSize)>>>(wordLength, search[0], search[1], search[2], search[3]);
 	CHECK(1);
 
 	CHECK(cudaDeviceSynchronize());
