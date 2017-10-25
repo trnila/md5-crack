@@ -54,6 +54,8 @@ __global__ void thread_hierarchy(int len, uint8_t *search, char *table) {
 		md5(start, len, hash);
 		if(hash_equals(hash, search, sizeof(hash))) {
 			printf("Hash found %s\n", start);
+			__threadfence();
+			asm("trap;");
 			return;
 		}
 
@@ -83,7 +85,7 @@ void cuda_crack(int wordLength, uint8_t *hash) {
 
 	cudaError_t cerr;
 
-	CHECK(cudaDeviceSetLimit(cudaLimitPrintfFifoSize, 1024*1024*80));
+	//CHECK(cudaDeviceSetLimit(cudaLimitPrintfFifoSize, 1024*1024*80));
 
 	uint8_t *gpu;
 	CHECK(cudaMalloc(&gpu, 16));
