@@ -9,23 +9,25 @@
 const char letters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 int main(int argc, char **argv) {
+	char table[255];
+	
 	if(argc < 3) {
 		printf("Usage: %s hash passsize\n", argv[0]);
 		exit(1);
 	}
 
 	uint8_t search[16];
-    parseHash(argv[1], search);
+	parseHash(argv[1], search);
 
-    int len = atoi(argv[2]);
+	int len = atoi(argv[2]);
 	int threads = atoi(getenv("NUM_CORES") ? getenv("NUM_CORES") : "4");
 	if(argc == 4) {
 		threads = atoi(argv[3]);
 	}
 
-    initTable();
+	initTable(table);
 
-    char str[len + 1];
+	char str[len + 1];
 	memset(str, '0', len);
 	str[len] = 0;
 
