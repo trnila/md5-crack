@@ -11,10 +11,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	uint8_t search[16];
-	parseHash(argv[1], search);
 	int len = atoi(argv[2]);
-
-	cuda_crack(len, search);
+	cuda_crack(len, (uint8_t*) argv[1]);
 	return 0;
 }

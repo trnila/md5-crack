@@ -1,8 +1,8 @@
 CC:=nvcc
-OPT:=-Xcompiler -fPIC -ccbin=/usr/bin/gcc-4.9 -g
+OPT:=-Xcompiler -fPIC -g
 BINARY=crack
 
-${BINARY}: md5.o cuda1.o main1.o ../crack.o
+${BINARY}: md5.o cuda1.o main1.o
 	${CC} ${OPT} $^ -o $@
 
 %.o: %.cu
