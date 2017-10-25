@@ -98,5 +98,6 @@ void cuda_crack(int wordLength, uint8_t *hash) {
 	thread_hierarchy<<< dim3(blockSize, blockSize, blockSize), dim3(threadsSize, threadsSize, threadsSize)>>>(wordLength, search[0], search[1], search[2], search[3]);
 	CHECK(1);
 
+	CHECK(cudaSetDeviceFlags(cudaDeviceScheduleBlockingSync));
 	CHECK(cudaDeviceSynchronize());
 }
