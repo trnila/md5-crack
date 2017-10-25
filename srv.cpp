@@ -14,6 +14,7 @@ const char letters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst
 #define panic(msg) perror(msg); exit(1);
 
 int main(int argc, char **argv) {
+	char table[255];
 	const int port = 1234;
 
 	struct sockaddr_in srvAddr;
@@ -39,13 +40,12 @@ int main(int argc, char **argv) {
 
 	listen(s, 10);
 
-	initTable();
+	initTable(table);
 
 	// prevent zombies
-	struct sigaction sigchld_action = {
-		.sa_handler = SIG_DFL,
-		.sa_flags = SA_NOCLDWAIT
-	};
+	struct sigaction sigchld_action;
+	sigchld_action.sa_handler = SIG_DFL;
+	sigchld_action.sa_flags = SA_NOCLDWAIT;
 	sigaction(SIGCHLD, &sigchld_action, NULL);
 
 	for(;;) {

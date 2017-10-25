@@ -12,7 +12,7 @@
 #define BUFSIZE 1024
 const char letters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-int sendHash(char *hostname, int port, char *hash, int size, char from, char to) {
+int sendHash(const char *hostname, int port, char *hash, int size, char from, char to) {
 	int sockfd, n;
 	struct sockaddr_in serveraddr;
 	struct hostent *server;
@@ -35,7 +35,7 @@ int sendHash(char *hostname, int port, char *hash, int size, char from, char to)
 			(char *)&serveraddr.sin_addr.s_addr, server->h_length);
 	serveraddr.sin_port = htons(port);
 
-	if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0) {
+	if (connect(sockfd, (sockaddr*) &serveraddr, sizeof(serveraddr)) < 0) {
 		printf("%s:%d\n", hostname, port);
 		perror("ERROR connecting");
 		exit(1);
