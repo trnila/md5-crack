@@ -28,7 +28,7 @@ int crack(char* str, int len, char stop, uint8_t* search) {
 	int single = str[0] == stop;
 
 	do {
-		printf("%s\n", str);
+//		printf("%s\n", str);
 
 		md5((uint8_t*) str, len, hash);
 		if(memcmp(search, hash, 16) == 0) {

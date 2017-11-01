@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 			printf("\n");
 		}
 
-		printf("%d end value: %d\n", pid, WEXITSTATUS(status));
+//		printf("%d end value: %d\n", pid, WEXITSTATUS(status));
 	}
 
 
