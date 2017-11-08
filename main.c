@@ -7,6 +7,7 @@
 #include "crack.h"
 
 const char letters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const int numLetters = 62;
 
 int main(int argc, char **argv) {
 	char table[255];
@@ -39,8 +40,8 @@ int main(int argc, char **argv) {
 		running[i] = fork();
 		if(running[i] == 0) {
 			close(pipes[0]);
-			str[0] = letters[sizeof(letters) / threads * i];
-			char last = letters[sizeof(letters) / threads * (i + 1)];
+			str[0] = letters[(numLetters + threads) / threads * i];
+			char last = letters[(numLetters + threads) / threads * (i + 1)];
 			if(i == threads - 1) {
 				last = letters[0];
 			}
