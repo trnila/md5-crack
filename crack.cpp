@@ -4,11 +4,10 @@
 #include <wait.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <openssl/md5.h>
 
 #define FOUND 1
 #define NOT_FOUND 0
-
-void md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest);
 
 void initTable(char* table) {
     for(int i = 0; i < 254; i++) {
@@ -30,7 +29,13 @@ int crack(char* str, int len, char stop, uint8_t* search) {
 	do {
 //		printf("%s\n", str);
 
-		md5((uint8_t*) str, len, hash);
+		//md5((uint8_t*) str, len, hash);
+//		MD5_CTX ctx;
+//		MD5_Init(&ctx);
+//		MD5_Update(&ctx, str, len);
+//		MD5_Final(hash, &ctx);
+		MD5((const unsigned char*) str, len, hash);
+
 		if(memcmp(search, hash, 16) == 0) {
 			return 1;
 		}
